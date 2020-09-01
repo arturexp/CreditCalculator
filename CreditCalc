@@ -1,0 +1,38 @@
+import math
+
+calc = input("""What do you want to calculate?
+type "n" for number of monthly payments,
+type "a" for annuity monthly payment amount,
+type "p" for credit principal:""")
+
+if calc == "n":
+    principal = int(input("Enter the credit principal:\n"))
+    m_payment = int(input("Enter the monthly payment:\n"))
+    interest = input("Enter the credit interest:\n")
+    i = float(interest) / (12 * 100)
+    tmp = m_payment / (m_payment - i * principal)
+    n = math.log(tmp, 1 + i)
+    n = math.ceil(n)
+    y = n // 12
+    m = n % 12
+    if n < 12:
+        print(f"It will take {n} months to repay this credit!")
+    elif n == 12:
+        print("It will take 1 year to repay this credit!")
+    else:
+        print(f"It will take {y} years and {m} months to repay this credit!")
+elif calc == "a":
+    principal = int(input("Enter the credit principal:\n"))
+    periods = int(input("Enter the number of periods:\n"))
+    interest = input("Enter the credit interest:\n")
+    i = float(interest) / (12 * 100)
+    a = principal * ((i * (1 + i) ** periods) / ((1 + i) ** periods - 1))
+    a = math.ceil(a)
+    print(f"Your monthly payment = {a}!")
+elif calc == "p":
+    annuity = int(input("Enter the annuity payment:\n"))
+    periods = int(input("Enter the number of periods:\n"))
+    interest = input("Enter the credit interest:\n")
+    i = float(interest) / (12 * 100)
+    principal = annuity / ((i * (1 + i) ** periods) / ((1 + i) ** periods - 1))
+    print(f"Your credit principal = {principal}!")
