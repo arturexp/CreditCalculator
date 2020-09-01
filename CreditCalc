@@ -1,38 +1,69 @@
 import math
+import sys
+import argparse
 
-calc = input("""What do you want to calculate?
-type "n" for number of monthly payments,
-type "a" for annuity monthly payment amount,
-type "p" for credit principal:""")
+calc_len = len(sys.argv)
+parser = argparse.ArgumentParser()
+parser.add_argument('--type)', action='store', dest='type', required=True, choices=['diff', 'annuity'])
+parser.add_argument('--principal)', action='store', dest='principal', type=int)
+parser.add_argument('--periods)', action='store', dest='periods', type=int)
+parser.add_argument('--interest)', action='store', dest='interest', type=float)
+parser.add_argument('--payment)', action='store', dest='payment', type=int)
 
-if calc == "n":
-    principal = int(input("Enter the credit principal:\n"))
-    m_payment = int(input("Enter the monthly payment:\n"))
-    interest = input("Enter the credit interest:\n")
-    i = float(interest) / (12 * 100)
-    tmp = m_payment / (m_payment - i * principal)
-    n = math.log(tmp, 1 + i)
-    n = math.ceil(n)
-    y = n // 12
-    m = n % 12
-    if n < 12:
-        print(f"It will take {n} months to repay this credit!")
-    elif n == 12:
-        print("It will take 1 year to repay this credit!")
-    else:
-        print(f"It will take {y} years and {m} months to repay this credit!")
-elif calc == "a":
-    principal = int(input("Enter the credit principal:\n"))
-    periods = int(input("Enter the number of periods:\n"))
-    interest = input("Enter the credit interest:\n")
-    i = float(interest) / (12 * 100)
-    a = principal * ((i * (1 + i) ** periods) / ((1 + i) ** periods - 1))
-    a = math.ceil(a)
-    print(f"Your monthly payment = {a}!")
-elif calc == "p":
-    annuity = int(input("Enter the annuity payment:\n"))
-    periods = int(input("Enter the number of periods:\n"))
-    interest = input("Enter the credit interest:\n")
-    i = float(interest) / (12 * 100)
-    principal = annuity / ((i * (1 + i) ** periods) / ((1 + i) ** periods - 1))
-    print(f"Your credit principal = {principal}!")
+calc = parser.parse_args()
+
+principal = calc.principal
+periods = calc.periods
+interest = calc.interest
+payment = calc.payment
+
+diff_payment = 0
+if calc_len < 5 or interest is None:
+    print("Incorrect parameters.")
+
+elif calc.type == "diff":
+    for x in range(periods):
+        m = x + 1
+        i = interest / (12 * 100)
+        d = (principal / periods) + i * (principal - (principal * (m - 1) / periods))
+        d = math.ceil(d)
+        print(f"Month {m}: payment is {d}")
+        diff_payment += d
+    overpayment = math.ceil(diff_payment - principal)
+    print(f"Overpayment = {overpayment}")
+
+else:
+    if periods is None:
+        i = interest / (12 * 100)
+        tmp = payment / (payment - i * principal)
+        n = math.log(tmp, 1 + i)
+        n = math.ceil(n)
+        y = n // 12
+        m = n % 12
+        overpayment = math.ceil(n * payment - principal)
+        if n < 12:
+            print(f"It will take {n} months to repay this credit!")
+            print(f"Overpayment = {overpayment}")
+        elif n == 12:
+            print("It will take 1 year to repay this credit!")
+            print(f"Overpayment = {overpayment}")
+        elif m == 0:
+            print(f"It will take {y} years to repay this credit!")
+            print(f"Overpayment = {overpayment}")
+        else:
+            print(f"It will take {y} years and {m} months to repay this credit!")
+            print(f"Overpayment = {overpayment}")
+    elif payment is None:
+        i = interest / (12 * 100)
+        a = principal * ((i * (1 + i) ** periods) / ((1 + i) ** periods - 1))
+        a = math.ceil(a)
+        overpayment = math.ceil(periods * a - principal)
+        print(f"Your monthly payment = {a}!")
+        print(f"Overpayment = {overpayment}")
+    elif principal is None:
+        i = interest / (12 * 100)
+        principal = payment / ((i * (1 + i) ** periods) / ((1 + i) ** periods - 1))
+        principal = round(principal)
+        print(f"Your credit principal = {principal}!")
+        overpayment = math.ceil(periods * payment - principal)
+        print(f"Overpayment = {overpayment}")
