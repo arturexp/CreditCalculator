@@ -1,2 +1,2 @@
 # CreditCalculator
-Simple Credit Calculator. Python. JetBrains Academy
+Simple Comand line Credit Calculator. Python. JetBrains Academy
